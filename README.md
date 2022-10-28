@@ -5,5 +5,5 @@
 
 
 28 oct 2021: 5.09
-ncd python assignment in 
+ncd python assignment in mysql database
 
