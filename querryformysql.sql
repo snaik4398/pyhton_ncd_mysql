@@ -1,5 +1,9 @@
+  cursor.execute('INSERT INTO pat_info VALUES (%s, % s, % s, % s, % s, % s, % s, % s,% s,% s)',
+                   (pat_id,name1, email1, gen1, dob, adhar, phno, pin, sc, res ))
+
+
  create table if not exists `pat_info` (
-      `id` int(12) not null auto_increment,
+      `id` varchar(14) not null ,
       `patname` varchar(50) not null,
       `email` varchar(100) not null,
       `gender` varchar(100) not null,
@@ -7,9 +11,18 @@
       `adhar` varchar(100) not null,
       `phno` varchar(100) not null,
       `postalcode` varchar(100) not null,
+      `score` varchar(100) not null,
+      `result` varchar(100) not null,
       primary key(`id`))
-      auto_increment=1 default charset=utf8;
+ default charset=utf8;
 
+
+
+
+create database pymsql;
+
+
+use pymsql;
 
 
 create DATABASE IF NOT EXISTS python_ncd_database;
