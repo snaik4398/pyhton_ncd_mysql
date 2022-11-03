@@ -59,6 +59,8 @@ drop table pat_info;
 
 
 SELECT * from pat_info WHERE id LIKE 's%' or lname LIKE 's%' or fname LIKE 's%'; 
+cursor.execute("SELECT * from pat_info WHERE id LIKE '"+pdata+"%' or lname LIKE '"+pdata+"%' or fname LIKE '"+pdata+"%'; ")
+        
         
 
 
