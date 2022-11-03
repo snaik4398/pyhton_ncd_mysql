@@ -24,7 +24,17 @@ mysql = MySQL(app)
 
 @app.route('/')
 def welcome():
+    return render_template('initial.html')
+
+@app.route('/signuppage')
+def signuppage():
     return render_template('signup.html')
+
+
+
+@app.route('/searchpage')
+def searchpage():
+    return render_template('searchpage.html')
 
 
 # when we tap to the back button it will go to the index.html page
@@ -130,6 +140,10 @@ def signup():
     if request.method == 'POST':
         pat_id= str(randomPat_id(14))
         name1 = request.form['fname']
+        fname=name1
+        lname=request.form['lname']
+
+        # merging firstname and last name 
         name1 += " "
         name1 += request.form['lname']
 
@@ -143,25 +157,27 @@ def signup():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # cursor.execute('SELECT * FROM accounts WHERE username = % s', (username, ))
     # account = cursor.fetchone()
+
 # mysql> desc pat_info;
 # +------------+--------------+------+-----+---------+-------+
 # | Field      | Type         | Null | Key | Default | Extra |
 # +------------+--------------+------+-----+---------+-------+
 # | id         | varchar(14)  | NO   | PRI | NULL    |       |
-# | patname    | varchar(50)  | NO   |     | NULL    |       |
+# | fname      | varchar(50)  | NO   |     | NULL    |       |
+# | lname      | varchar(50)  | NO   |     | NULL    |       |
 # | email      | varchar(100) | NO   |     | NULL    |       |
 # | gender     | varchar(100) | NO   |     | NULL    |       |
 # | dob        | varchar(100) | NO   |     | NULL    |       |
 # | adhar      | varchar(100) | NO   |     | NULL    |       |
 # | phno       | varchar(100) | NO   |     | NULL    |       |
 # | postalcode | varchar(100) | NO   |     | NULL    |       |
-# | score         | varchar(100) | NO   |     | NULL    |       |
-# | result        | varchar(100) | NO   |     | NULL    |       |
+# | score      | varchar(100) | NO   |     | NULL    |       |
+# | result     | varchar(100) | NO   |     | NULL    |       |
 # +------------+--------------+------+-----+---------+-------+
-# 10 rows in set (0.00 sec)
+# 11 rows in set (0.00 sec)
 
-    cursor.execute('INSERT INTO pat_info VALUES (% s, % s, % s, % s, % s, % s, % s, % s,% s,% s)',
-                   (pat_id,name1, email1, gen1, dob, adhar, phno, pin, sc, res ))
+    cursor.execute('INSERT INTO pat_info VALUES (% s, % s, % s, % s, % s, % s, % s, % s, % s,% s,% s)',
+                   (pat_id,fname,lname, email1, gen1, dob, adhar, phno, pin, sc, res ))
     mysql.connection.commit()
     msg = 'You have successfully registered !'
 # calling a normal pyhton function to store the  fetching email value (from the form that is created in the signup page) and in that funcion we assign to a global variable email
@@ -175,24 +191,13 @@ def signup():
     # creating a dictionary in pyhton to store it in mongo db as it is similar to jason format so it wll wasy to store in this way
     # also dictionary is mutable so we can change the stored value
 
-# code for mongo db
-#     patient_info_dictionary={
-#         'name':name1,
-#         'gender':gen1,
-#         'date_of_birth':dob,
-#         'email_id':email1,
-#         'pincode':pin,
-#         'phno':phno,
-#         'Adhar number':adhar
-#     }
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    # checking the global email variable is initiated or not by by printing it in console
+   # checking the global email variable is initiated or not by by printing it in console
 
 # -----------------------------------------------------------------------------------------
 # code for mongo db
     # collections.insert_one(patient_info_dictionary)
 # -----------------------------------------------------------------------------------------
-    return render_template('index.html',id=pat_id, nm=name1, gen=gen1, pin=pin, dob=dob, email=email1,msg=msg)
+    return render_template('table.html',id=pat_id, nm=name1, gen=gen1, pin=pin, dob=dob, email=email1,msg=msg)
 
 
 # after pressing the submit button in the index.html page  app.route(/submit ) is going to executed
@@ -202,10 +207,13 @@ def submit():
     total_score = 0
     # mail=email
     c = 0
+    a1=-1
 
     if request.method == 'POST':
+
+
         a1 = int(request.form['age'])
-        if (a1 > 3 or a1 < 0):
+        if (a1 > 3 or a1 < 0 or a1 == -1 ):
             return redirect(url_for('fail', s="invalid input"))
         p2 = int(request.form['2pp'])
         if (p2 > 2 or p2 < 0):
@@ -228,13 +236,65 @@ def submit():
     # sendind the total score to success function
     return redirect(url_for('success', score=total_score))
 
+    
+#  id         | varchar(14)  | NO   | PRI | NULL    |       |
+# | fname      | varchar(50)  | NO   |     | NULL    |       |
+# | lname 
+
+@app.route('/search', methods=['POST', 'GET'])
+def search():
+    if request.method == 'POST':
+        pdata=(request.form['primary_key']).lower()
+        idata=(request.form['inp']).lower()
+        print(pdata)
+        print(idata)
+        # if pdata=""
+     
+        # l=list()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # cursor.execute('SELECT * from pat_info WHERE id LIKE %s or lname LIKE %s or fname LIKE  %s ',(pdata,pdata,pdata))
+        cursor.execute("SELECT * from pat_info WHERE id LIKE '%"+pdata+"' or lname LIKE '%"+pdata+"' or fname LIKE '%"+pdata+"'; ")
+        cursor.execute("SELECT * from pat_info WHERE id LIKE '%"+pdata+"' or lname LIKE '%"+pdata+"' or fname LIKE '%"+pdata+"'; ")
+        result=list(cursor.fetchall())
+        return render_template('searchpage.html',parent_list=result)
+
+@app.route('/all_data', methods=['POST', 'GET'])
+def all_data():
+    if request.method == 'POST':
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM pat_info')
+        result=list(cursor.fetchall())
+        print("heelo")
+        print(result)
+        print(type(result))
+        print(result[0]['id'])
+        
+        return render_template('searchpage.html',parent_list=result)
+    # if(len(pid)>0):
+    #     for i in pid:
+    #         id=random_n_digits(14)
+    #         if(id==i):
+    #             continue
+    #         else:
+    #             cursor.execute('INSERT INTO patient VALUES (%s, % s, % s, % s, % s, % s, % s, % s,%s,%s)',(id,firstname, lastname, gender , aadhaar, phone, birthday, pincode, total, screening,))
+    #             mysql.connection.commit()
+    #             msg='You have successfully registered !'
+    #             break
+                
+    # else:
+    #     id=random_n_digits(14)
+    #     cursor.execute('INSERT INTO patient VALUES (%s,% s, % s, % s, % s, % s, % s, % s,%s,%s)',(id,firstname, lastname, gender , aadhaar, phone, birthday, pincode, total, screening))
+    #     mysql.connection.commit()
+    
+    # cursor.execute('SELECT patient_id from patient WHERE aadhaar_uid=%s',[aadhaar])
+    # patient_id= cursor.fetchone()
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
-    #   |
-    # client = pymongo.MongoClient("mongodb://localhost:27017")
-    # print(client)
-    # print(email)
-    # db = client['pat_info']
-    # collections = db['information']
-    # print(email)
     app.run(debug=True, port=4398)
