@@ -253,9 +253,10 @@ def search():
         # l=list()
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # cursor.execute('SELECT * from pat_info WHERE id LIKE %s or lname LIKE %s or fname LIKE  %s ',(pdata,pdata,pdata))
-        cursor.execute("SELECT * from pat_info WHERE id LIKE '%"+pdata+"' or lname LIKE '%"+pdata+"' or fname LIKE '%"+pdata+"'; ")
-        cursor.execute("SELECT * from pat_info WHERE id LIKE '%"+pdata+"' or lname LIKE '%"+pdata+"' or fname LIKE '%"+pdata+"'; ")
+        # cursor.execute("SELECT * from pat_info WHERE id LIKE '%"+pdata+"' or lname LIKE '%"+pdata+"' or fname LIKE '%"+pdata+"'; ")
+        cursor.execute("SELECT * from pat_info WHERE id LIKE '"+idata+"%' or lname LIKE '"+idata+"%' or fname LIKE '"+idata+"%'; ")
         result=list(cursor.fetchall())
+        print(result)
         return render_template('searchpage.html',parent_list=result)
 
 @app.route('/all_data', methods=['POST', 'GET'])
